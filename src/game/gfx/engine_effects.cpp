@@ -337,6 +337,7 @@ void __cdecl AgeTextureSplats(sTextureSplats* splats, int elapsed)
 }
 
 // The register adapter: the elapsed time in EAX, the set on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void AgeTextureSplatsStub()
 {
     __asm {
@@ -351,6 +352,7 @@ __declspec(naked) void AgeTextureSplatsStub()
         ret
     }
 }
+#endif
 
 // 0x00491F70
 void __cdecl AgeAllTextureSplats()

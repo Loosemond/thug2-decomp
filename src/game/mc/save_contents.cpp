@@ -392,6 +392,7 @@ void __cdecl ApplyLoadedContentsRegisters(uint32_t type, CStruct* contents, CScr
 } // namespace
 
 // 0x005A79A0: the structure in EBX, the type on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteSaveContentsStub()
 {
     __asm {
@@ -402,8 +403,10 @@ __declspec(naked) void WriteSaveContentsStub()
         ret
     }
 }
+#endif
 
 // 0x005A81B0: the type in EAX, the contents in ESI, the script and params on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ApplyLoadedContentsStub()
 {
     __asm {
@@ -416,6 +419,7 @@ __declspec(naked) void ApplyLoadedContentsStub()
         ret
     }
 }
+#endif
 
 } // namespace Mc
 

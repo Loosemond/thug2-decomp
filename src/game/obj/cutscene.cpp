@@ -55,6 +55,7 @@ const char* CutsceneNameFromPath(const char* path)
 }
 
 // The path in EDX; the result in EAX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void CutsceneNameFromPathStub()
 {
     __asm {
@@ -64,6 +65,7 @@ __declspec(naked) void CutsceneNameFromPathStub()
         ret
     }
 }
+#endif
 
 // 0x00463910
 uint32_t CCutsceneData::NameChecksum(const char* suffix, int number)

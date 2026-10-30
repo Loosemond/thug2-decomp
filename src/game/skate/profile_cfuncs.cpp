@@ -124,6 +124,7 @@ void __cdecl PreloadMeshesRegisters(uint32_t arrayName) { PreloadMeshes(arrayNam
 } // namespace
 
 // 0x005AAAA0: the array's name in EAX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void PreloadMeshesStub()
 {
     __asm {
@@ -133,6 +134,7 @@ __declspec(naked) void PreloadMeshesStub()
         ret
     }
 }
+#endif
 
 // 0x005AAA80
 bool __cdecl CFunc_AddGoalEditorNodesToLevelNodeArray(CStruct*, CScript*)

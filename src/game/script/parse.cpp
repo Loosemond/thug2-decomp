@@ -980,6 +980,7 @@ const uint8_t* __cdecl AddParameterRegisters(const uint8_t* token, uint32_t name
 } // namespace
 
 // 0x0046F7A0: the table in EBX, the type in EDI, the count in ESI.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::FindStoredRandomStub()
 {
     __asm {
@@ -991,8 +992,10 @@ __declspec(naked) void Script::FindStoredRandomStub()
         ret
     }
 }
+#endif
 
 // 0x0046FD60: the token in EAX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::SkipValueStub()
 {
     __asm {
@@ -1002,8 +1005,10 @@ __declspec(naked) void Script::SkipValueStub()
         ret
     }
 }
+#endif
 
 // 0x0046FBD0: the token in EAX, the stream choice in BL, the component on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::ParseRandomRangeStub()
 {
     __asm {
@@ -1016,8 +1021,10 @@ __declspec(naked) void Script::ParseRandomRangeStub()
         ret
     }
 }
+#endif
 
 // 0x00470130: the token in ECX, the name in EDX, the structures on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::AddParameterStub()
 {
     __asm {
@@ -1030,6 +1037,7 @@ __declspec(naked) void Script::AddParameterStub()
         ret
     }
 }
+#endif
 
 REPLACE(0x004728C0, Script::GetCurrentScript);
 REPLACE(0x004728D0, Script::GetNextScript);

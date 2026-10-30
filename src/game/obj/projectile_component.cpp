@@ -12,6 +12,7 @@
 #include "game/skate/skate_module_calls.h"
 #include "hook/game.h"
 #include "hook/hook.h"
+#include <cmath>
 
 namespace Obj {
 
@@ -36,6 +37,7 @@ uint8_t& SlotTaken(uint8_t* skater, int slot) { return skater[kSlots + 4 + slot 
 
 // One feeler's end x / z, as the original's x87 code: the cosine of the angle as computed (53 bits), the sine of it
 // rounded to float; z adds (sin + float(cos)) * 12 rounded to float first.
+#if defined(_M_IX86)
 void FeelerEnd(int index, float x, float z, float* endX, float* endZ)
 {
     float angleF;
@@ -67,6 +69,17 @@ void FeelerEnd(int index, float x, float z, float* endX, float* endZ)
         fstp dword ptr [eax]
     }
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - doubles
+void FeelerEnd(int index, float x, float z, float* endX, float* endZ)
+{
+    double angle = static_cast<double>(index) * kStep;
+    double cosine = std::cos(angle);                                   // of the angle as computed
+    double sine = std::sin(static_cast<double>(static_cast<float>(angle))); // of it rounded to float
+    float slot = static_cast<float>((sine + static_cast<float>(cosine)) * kReach);
+    *endX = static_cast<float>((cosine - sine) * kReach + x);
+    *endZ = static_cast<float>(static_cast<double>(z) + slot);
+}
+#endif
 
 } // namespace
 

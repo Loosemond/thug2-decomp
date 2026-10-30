@@ -293,6 +293,7 @@ void __cdecl SetScreenFieldOfView(float degrees)
     float halfDegreeRadians = g_halfDegreeRadians;
     float defaultAngle = g_defaultAngle;
     float factor;
+#if defined(_M_IX86)
     __asm {
         fld degrees
         fmul halfDegreeRadians
@@ -306,6 +307,10 @@ void __cdecl SetScreenFieldOfView(float degrees)
         _emit 0xF9
         fstp factor
     }
+#else // NOT ORIGINAL: no x87 elsewhere - doubles
+    factor = static_cast<float>(std::tan(static_cast<double>(degrees) * halfDegreeRadians) /
+                                std::tan(static_cast<double>(defaultAngle) * halfDegreeRadians));
+#endif
     g_angleFactor = factor;
     for (int i = 0; i < ActiveViewportCount(); ++i) {
         CViewport* viewport = ActiveViewport(i);

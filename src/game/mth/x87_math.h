@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 
 // The x87 instructions and C runtime math the originals use (the maths library's rotations, the skater's and the
@@ -9,6 +10,8 @@
 // runtime's _CIacos / _CIasin (0x00623630 / 0x00623560: the argument and the result in ST0) are called until the C
 // runtime is linked.
 namespace X87 {
+
+#if defined(_M_IX86)
 
 // FSQRT (53 bits: the same as a double square root).
 inline double Sqrt(double value)
@@ -281,5 +284,47 @@ inline double Asin(double value)
     }
     return result;
 }
+
+#else // NOT ORIGINAL: no x87 elsewhere. Double precision throughout, so results can differ from the original's in
+      // the last bits: fine for single player, not for online parity with the original.
+
+inline double Sqrt(double value) { return std::sqrt(value); }
+inline double Sin(double angle) { return std::sin(angle); }
+inline double Cos(double angle) { return std::cos(angle); }
+inline double Divide(double a, double b) { return a / b; }
+inline float MultiplyF(float a, float b) { return a * b; }
+inline double SinTimes(double angle, double factor) { return std::sin(angle) * factor; }
+inline double SinProduct(double a, double b) { return std::sin(a) * std::sin(b); }
+inline double Cot(double angle) { return std::cos(angle) / std::sin(angle); }
+inline float SinF(double angle) { return static_cast<float>(std::sin(angle)); }
+inline float CosF(double angle) { return static_cast<float>(std::cos(angle)); }
+inline bool CosAbove(double angle, float value) { return std::cos(angle) > value; }
+inline void Rotate(double angle, double a, double b, double* rotatedA, double* rotatedB)
+{
+    double s = std::sin(angle), c = std::cos(angle);
+    *rotatedA = c * a + s * b;
+    *rotatedB = c * b - s * a;
+}
+inline float Atan2F(double y, double x) { return static_cast<float>(std::atan2(y, x)); }
+inline double Atan2Difference(double y1, double x1, double y2, double x2) { return std::atan2(y1, x1) - std::atan2(y2, x2); }
+inline float AcosF(double value, float limit, bool* aboveLimit)
+{
+    double result = std::acos(value);
+    *aboveLimit = result > limit;
+    return static_cast<float>(result);
+}
+inline float NegAsinCos(double value, float limit, bool* above, double* inverse, double* negInverse)
+{
+    double angle = -std::asin(value);
+    double cosine = std::cos(angle); // of the unrounded angle, as the original's FCOS of ST0
+    *above = std::fabs(cosine) > limit;
+    *inverse = 1.0 / cosine;
+    *negInverse = -1.0 / cosine;
+    return static_cast<float>(angle);
+}
+inline double Acos(double value) { return std::acos(value); }
+inline double Asin(double value) { return std::asin(value); }
+
+#endif
 
 } // namespace X87

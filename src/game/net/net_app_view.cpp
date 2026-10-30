@@ -144,6 +144,7 @@ bool App::IsSendDue(Conn* conn)
 }
 
 // 0x00456B30
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot5Jump()
 {
     __asm {
@@ -151,6 +152,7 @@ __declspec(naked) void VirtualSlot5Jump()
         jmp dword ptr [eax + 0x14]
     }
 }
+#endif
 
 // 0x00456B40
 void App::AliasConnections(Conn* first, Conn* second)

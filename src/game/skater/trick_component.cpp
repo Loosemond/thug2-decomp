@@ -94,6 +94,7 @@ bool IsDirection(uint32_t button)
     }
 }
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void IsDirectionStub()
 {
     __asm {
@@ -107,11 +108,13 @@ __declspec(naked) void IsDirectionStub()
         ret
     }
 }
+#endif
 
 namespace {
 void __stdcall MarkUsedThunk(CTrickComponent* trick, uint32_t flags) { trick->MarkUsed(flags); }
 } // namespace
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void MarkUsedStub()
 {
     __asm {
@@ -125,6 +128,7 @@ __declspec(naked) void MarkUsedStub()
         ret 4
     }
 }
+#endif
 
 // 0x0051EA90
 void __cdecl CTrickComponent::RegisterMemberFunctions()

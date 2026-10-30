@@ -396,6 +396,7 @@ bool CAvoidComponent::RestoreMotion(Script::CStruct* /*params*/, Script::CScript
 namespace {
 
 // 0x004E3270: the angle on the stack, the parameters in ESI; the result in ST0.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void AvoidDistanceStub()
 {
     __asm {
@@ -406,8 +407,10 @@ __declspec(naked) void AvoidDistanceStub()
         ret
     }
 }
+#endif
 
 // 0x004E3930: the start in EDI, the end in ESI; the result in AL.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void LineCollidesStub()
 {
     __asm {
@@ -418,6 +421,7 @@ __declspec(naked) void LineCollidesStub()
         ret
     }
 }
+#endif
 
 } // namespace
 

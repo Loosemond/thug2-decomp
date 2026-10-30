@@ -257,6 +257,7 @@ void __cdecl ApplyFlagCommandRegisters(void* data, Obj::CObject* object)
     ApplyFlagCommand(static_cast<FlagCommandData*>(data), object);
 }
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ApplyFlagCommandStub()
 {
     __asm {
@@ -267,6 +268,7 @@ __declspec(naked) void ApplyFlagCommandStub()
         ret
     }
 }
+#endif
 
 // 0x005A01D0
 bool __cdecl FlagCommandByName(Script::CStruct* params, Script::CScript*, int action)

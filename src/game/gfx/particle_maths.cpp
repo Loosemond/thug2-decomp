@@ -87,6 +87,7 @@ Mth::Vector* __cdecl QuadraticLowest(Mth::Vector* out, const sQuadraticPoints* p
 }
 
 // The register adapter: out in ECX (kept, and EDX), the points on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void QuadraticLowestStub()
 {
     __asm {
@@ -102,6 +103,7 @@ __declspec(naked) void QuadraticLowestStub()
         ret
     }
 }
+#endif
 
 // 0x00495130
 Mth::Vector* __cdecl MinVector(Mth::Vector* out, const Mth::Vector* a, const Mth::Vector* b)
@@ -134,6 +136,7 @@ Mth::Vector* __cdecl MaxVector(Mth::Vector* out, const Mth::Vector* a, const Mth
 }
 
 // The register adapters: a in ECX, b in EDX, out in ESI.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void MinVectorStub()
 {
     __asm {
@@ -145,6 +148,8 @@ __declspec(naked) void MinVectorStub()
         ret
     }
 }
+#endif
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void MaxVectorStub()
 {
     __asm {
@@ -156,6 +161,7 @@ __declspec(naked) void MaxVectorStub()
         ret
     }
 }
+#endif
 
 } // namespace Nx
 

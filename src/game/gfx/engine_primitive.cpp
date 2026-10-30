@@ -166,6 +166,7 @@ int CPrimitive::Compare(const CPrimitive*)
 // --- the lists ---
 
 // 0x0049C6F0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void CallVirtual35Stub()
 {
     __asm {
@@ -173,6 +174,7 @@ __declspec(naked) void CallVirtual35Stub()
         jmp dword ptr [eax + 0x8C]
     }
 }
+#endif
 
 // 0x0049C7D0
 void __cdecl LinkPrimitive(CPrimitive* primitive)

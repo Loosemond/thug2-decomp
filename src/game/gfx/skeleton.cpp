@@ -471,6 +471,7 @@ void QuatToBoneMatrix(Mth::Matrix* out, const Mth::Vector* translation, const fl
 
 // The original's convention: EAX = out, EDX = the translation, BL = swapZ; [ESP+4] the quaternion, [ESP+8] mirror
 // (a byte) - popped by the caller.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void QuatToBoneMatrixStub()
 {
     __asm {
@@ -486,6 +487,7 @@ __declspec(naked) void QuatToBoneMatrixStub()
         ret
     }
 }
+#endif
 
 // 0x004A4240
 void CSkeleton::Update(const float (*rotations)[4], const float (*translations)[4])

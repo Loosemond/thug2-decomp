@@ -86,6 +86,7 @@ void CTexture::SetPermanent(bool permanent)
 // --- the dispatchers --------------------------------------------------------------------------------------------
 
 // 0x0049F360
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot17Jump()
 {
     __asm {
@@ -93,8 +94,10 @@ __declspec(naked) void VirtualSlot17Jump()
         jmp dword ptr [eax + 0x44]
     }
 }
+#endif
 
 // 0x0049F370
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot21Jump()
 {
     __asm {
@@ -102,8 +105,10 @@ __declspec(naked) void VirtualSlot21Jump()
         jmp dword ptr [eax + 0x54]
     }
 }
+#endif
 
 // 0x0049F380
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot23Jump()
 {
     __asm {
@@ -111,8 +116,10 @@ __declspec(naked) void VirtualSlot23Jump()
         jmp dword ptr [eax + 0x5C]
     }
 }
+#endif
 
 // 0x0049F390
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot24Jump()
 {
     __asm {
@@ -120,8 +127,10 @@ __declspec(naked) void VirtualSlot24Jump()
         jmp dword ptr [eax + 0x60]
     }
 }
+#endif
 
 // 0x0049F3A0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot26Jump()
 {
     __asm {
@@ -129,8 +138,10 @@ __declspec(naked) void VirtualSlot26Jump()
         jmp dword ptr [eax + 0x68]
     }
 }
+#endif
 
 // 0x0049F3B0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot32Jump()
 {
     __asm {
@@ -138,8 +149,10 @@ __declspec(naked) void VirtualSlot32Jump()
         jmp dword ptr [eax + 0x80]
     }
 }
+#endif
 
 // 0x0049F3C0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot33Jump()
 {
     __asm {
@@ -147,8 +160,10 @@ __declspec(naked) void VirtualSlot33Jump()
         jmp dword ptr [eax + 0x84]
     }
 }
+#endif
 
 // 0x0049F3D0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot34Jump()
 {
     __asm {
@@ -156,8 +171,10 @@ __declspec(naked) void VirtualSlot34Jump()
         jmp dword ptr [eax + 0x88]
     }
 }
+#endif
 
 // 0x0049F3E0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot38Jump()
 {
     __asm {
@@ -165,8 +182,10 @@ __declspec(naked) void VirtualSlot38Jump()
         jmp dword ptr [eax + 0x98]
     }
 }
+#endif
 
 // 0x0049F420
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot41Jump()
 {
     __asm {
@@ -174,6 +193,7 @@ __declspec(naked) void VirtualSlot41Jump()
         jmp dword ptr [eax + 0xA4]
     }
 }
+#endif
 
 } // namespace Nx
 

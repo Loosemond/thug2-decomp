@@ -194,6 +194,7 @@ int CCameraLookAroundComponent::CallMemberFunction(uint32_t name, Script::CStruc
 namespace {
 
 // 0x004E3F90: a tail jump to the component's slot 2 (its arguments left as they are).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void RefreshFromStructure()
 {
     __asm {
@@ -201,6 +202,7 @@ __declspec(naked) void RefreshFromStructure()
         jmp dword ptr [eax + 8]
     }
 }
+#endif
 
 } // namespace
 

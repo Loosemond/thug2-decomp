@@ -120,6 +120,7 @@ uint32_t __cdecl FindNameOfIntegerRegisters(CStruct* structure, uint32_t value)
 } // namespace
 
 // 0x005A9E30: the structure in EBX, the value on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void FindNameOfIntegerStub()
 {
     __asm {
@@ -130,6 +131,7 @@ __declspec(naked) void FindNameOfIntegerStub()
         ret
     }
 }
+#endif
 
 // 0x005A9E80
 float __cdecl WrapAngle(float degrees)

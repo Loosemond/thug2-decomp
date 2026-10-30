@@ -220,6 +220,7 @@ void __cdecl HideModelsForCutscene() { GameVariable<SHiddenModels>(0x006FA2F0).H
 void __cdecl ShowModelsAfterCutscene() { GameVariable<SHiddenModels>(0x006FA2F0).Show(); }
 
 // 0x00487D50
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot4Jump()
 {
     __asm {
@@ -227,6 +228,7 @@ __declspec(naked) void VirtualSlot4Jump()
         jmp dword ptr [eax + 0x10]
     }
 }
+#endif
 
 } // namespace Gfx
 

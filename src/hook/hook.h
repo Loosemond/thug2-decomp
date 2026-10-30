@@ -114,10 +114,23 @@ struct ReplacementRegistrar {
 template <typename F>
 void* CodeAddress(F f)
 {
-    static_assert(sizeof(F) == sizeof(void*), "only plain functions and simple member functions");
-    void* p;
-    std::memcpy(&p, &f, sizeof(p));
-    return p;
+#if defined(__wasm__) // NOT ORIGINAL (the web port): Itanium member function pointers are {function, adjustment}
+    if constexpr (std::is_member_function_pointer_v<F>) {
+        struct {
+            uintptr_t function;
+            ptrdiff_t adjustment; // this adjustment * 2, + 1 if virtual (WebAssembly uses ARM's layout)
+        } member;
+        static_assert(sizeof(F) == sizeof(member), "only plain functions and simple member functions");
+        std::memcpy(&member, &f, sizeof(member));
+        return member.adjustment == 0 ? reinterpret_cast<void*>(member.function) : nullptr;
+    } else
+#endif
+    {
+        static_assert(sizeof(F) == sizeof(void*), "only plain functions and simple member functions");
+        void* p;
+        std::memcpy(&p, &f, sizeof(p));
+        return p;
+    }
 }
 
 // How many bytes of arguments a function of type F pops when it returns: none for cdecl; all of them for
@@ -141,10 +154,12 @@ template <typename R, typename... A>
 struct CalleePop<R(__cdecl*)(A..., ...)> { // variadic functions are always cdecl
     static constexpr int value = 0;
 };
+#if defined(_M_IX86) || defined(__i386__) // elsewhere __stdcall is ignored and this would redefine the __cdecl one
 template <typename R, typename... A>
 struct CalleePop<R(__stdcall*)(A...)> {
     static constexpr int value = (0 + ... + kArgumentBytes<A>);
 };
+#endif
 template <typename R, typename C, typename... A>
 struct CalleePop<R (C::*)(A...)> {
     static constexpr int value = kHiddenReturnBytes<R> + (0 + ... + kArgumentBytes<A>);
@@ -192,8 +207,18 @@ constexpr int kCalleePop = CalleePop<std::decay_t<F>>::value;
 #undef REPLACE_FALLBACK
 #undef REPLACE_FALLBACK_UNCHECKED
 #undef REPLACE_UNCHECKED
+#if defined(THUG2_WEB) // NOT ORIGINAL (the web port): each line puts its function at the original's address in the
+                       // function table, for calls by address and the exe's vtables (hook/game.h)
+#define REPLACE(address, ...)                                                                        \
+    static ReplacementRegistrar REPLACE_CONCAT(g_replace_, __LINE__)(                                \
+        address, CodeAddress(__VA_ARGS__), -1, #__VA_ARGS__, __FILE__)
+#define REPLACE_SOURCE_ONLY(address, ...)                                                            \
+    static ReplacementRegistrar REPLACE_CONCAT(g_replace_, __LINE__)(                                \
+        address, CodeAddress(__VA_ARGS__), -1, #__VA_ARGS__, __FILE__, true)
+#else
 #define REPLACE(address, ...) static_assert(true)
 #define REPLACE_SOURCE_ONLY(address, ...) static_assert(true)
+#endif
 #define REPLACE_FALLBACK(address, ...) static_assert(true)
 #define REPLACE_FALLBACK_UNCHECKED(address, ...) static_assert(true)
 #define REPLACE_UNCHECKED(address, ...) static_assert(true)

@@ -767,7 +767,7 @@ bool __cdecl JoinBuddy(Script::CStruct* params, Script::CScript*)
     PopHeap();
     Script::CStruct* join = NewParams();
     in_addr address;
-    address.S_un.S_addr = static_cast<uint32_t>(ip);
+    address.s_addr = static_cast<uint32_t>(ip); // (S_un.S_addr; s_addr is its portable name)
     const char* dotted = inet_ntoa(address);
     join->AddComponentOfType(0, Script::ESYMBOLTYPE_INTEGER, static_cast<uint32_t>(port));
     join->AddString(0, Script::ESYMBOLTYPE_STRING, dotted);

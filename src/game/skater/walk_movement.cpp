@@ -56,6 +56,7 @@ constexpr float kDegrees = 57.2957763671875f;    // 0x00645468
 
 // |acos(value)| in degrees (the game's C runtime's _CIacos, 0x00623630), kept in the register until rounded to
 // float, as the original.
+#if defined(_M_IX86)
 float AcosDegrees(float value)
 {
     float result;
@@ -70,6 +71,9 @@ float AcosDegrees(float value)
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - the C library's acos
+float AcosDegrees(float value) { return static_cast<float>(std::fabs(std::acos(static_cast<double>(value)) * kDegrees)); }
+#endif
 
 // a + (b - a) * t.
 Mth::Vector* Lerp(Mth::Vector* out, const Mth::Vector* a, const Mth::Vector* b, float t) { return Walk::Lerp(out, a, b, t); }

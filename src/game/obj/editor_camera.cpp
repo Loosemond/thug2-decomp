@@ -596,6 +596,7 @@ void CEditorCameraComponent::Update()
 namespace {
 
 // 0x004E5390: `end` in ESI, `start` in EDI; the result in AL.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void FlaggedObjectBetweenStub()
 {
     __asm {
@@ -606,6 +607,7 @@ __declspec(naked) void FlaggedObjectBetweenStub()
         ret
     }
 }
+#endif
 
 } // namespace
 

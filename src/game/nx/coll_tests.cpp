@@ -538,6 +538,7 @@ double SegmentTriangleDistanceSquared(const Mth::Line& segment, const Mth::Vecto
 }
 
 // The arguments copied below the saved EDX (each push moves the next one into the same place).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void LineHitsSphereKeepingEdx()
 {
     __asm {
@@ -554,7 +555,9 @@ __declspec(naked) void LineHitsSphereKeepingEdx()
         ret
     }
 }
+#endif
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void SegmentsCross2DKeepingEdx()
 {
     __asm {
@@ -574,6 +577,7 @@ __declspec(naked) void SegmentsCross2DKeepingEdx()
         ret
     }
 }
+#endif
 
 // 0x0040D370 (P's side tests use its line values unrounded, Q's rounded to floats; each pair of sides' direction
 // test the first time unrounded, the second time rounded - as the original's x87 code keeps them)

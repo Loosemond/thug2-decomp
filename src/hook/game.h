@@ -2,7 +2,22 @@
 
 #include <cstdint>
 
-#ifdef THUG2_STANDALONE
+#if defined(THUG2_STANDALONE) && defined(THUG2_WEB)
+// NOT ORIGINAL (the web port, port/): the exe's .rdata / .data are loaded at their own addresses and each REPLACE line
+// puts its function in the function table's slot numbered with the original's address (port/src/hook/), so a variable
+// is read where it is and a call by address - or through the exe's vtables and tables - lands in our function, as in
+// the hooked build.
+template <typename T>
+T& GameVariable(uintptr_t address)
+{
+    return *reinterpret_cast<T*>(address);
+}
+template <typename Fn>
+Fn GameFunction(uintptr_t address)
+{
+    return reinterpret_cast<Fn>(address);
+}
+#elif defined(THUG2_STANDALONE)
 // The standalone build (no original exe): declared, never defined - every use left is an unresolved symbol naming the
 // function that uses it (tools/standalone_report.ts lists them). Each one has to become a real variable / a call.
 template <typename T>

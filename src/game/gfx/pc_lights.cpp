@@ -63,6 +63,7 @@ R CallVirtual(CPcModelLights* lights, int slot, A... args)
 }
 
 // A dynamic light's falloff at `distance` (its virtual [2]; thiscall) as the x87 leaves it, unrounded.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) double __stdcall Falloff(void* /*light*/, float /*distance*/)
 {
     __asm {
@@ -73,6 +74,12 @@ __declspec(naked) double __stdcall Falloff(void* /*light*/, float /*distance*/)
         ret 8
     }
 }
+#else // NOT ORIGINAL: the virtual called from C++ (CDynamicLightBase::Falloff: its double, unrounded)
+double Falloff(void* light, float distance)
+{
+    return reinterpret_cast<double(__thiscall*)(void*, float)>((*static_cast<void***>(light))[2])(light, distance);
+}
+#endif
 
 // The dynamic lights within `radius` of `position` (the engine's 0x0048EF90): their count, pointers into `out`.
 uint32_t FindDynamicLights(const Mth::Vector* position, uint32_t radius, uint8_t** out)

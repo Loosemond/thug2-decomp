@@ -20,6 +20,7 @@
 #include "hook/game.h"
 #include "hook/game_global.h"
 #include "hook/hook.h"
+#include <cmath>
 
 namespace Nx {
 
@@ -55,6 +56,7 @@ constexpr uint32_t kPassExplicitUV = 0x4000; // the UV wibble's matrix is set, n
 // (t - from) / (to - from) between two keys' colours, channel by channel in the order a, r, g, b (the bytes 3, 0, 1,
 // 2), each the x87's to * f + from * (1 - f) truncated - and not masked: the four values are shifted and or'd as
 // they come.
+#if defined(_M_IX86)
 uint32_t BlendKeyColors(int num, int den, const uint8_t* from, const uint8_t* to)
 {
     static const int kOrder[4] = {3, 0, 1, 2};
@@ -87,8 +89,22 @@ uint32_t BlendKeyColors(int num, int den, const uint8_t* from, const uint8_t* to
     }
     return color;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - doubles
+uint32_t BlendKeyColors(int num, int den, const uint8_t* from, const uint8_t* to)
+{
+    static const int kOrder[4] = {3, 0, 1, 2};
+    double f = static_cast<double>(num) / den, rest = 1.0 - f;
+    uint32_t color = 0;
+    for (int k = 0; k < 4; ++k) {
+        auto value = static_cast<int64_t>(std::trunc(to[kOrder[k]] * f + from[kOrder[k]] * rest));
+        color = k ? (color << 8 | static_cast<uint32_t>(value)) : static_cast<uint32_t>(value);
+    }
+    return color;
+}
+#endif
 
 // The time in seconds the UV wibbles use: the milliseconds (unsigned) times 0.001, stored as a float.
+#if defined(_M_IX86)
 float WibbleTime(uint32_t milliseconds)
 {
     float result;
@@ -105,10 +121,17 @@ float WibbleTime(uint32_t milliseconds)
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - doubles
+float WibbleTime(uint32_t milliseconds)
+{
+    return static_cast<float>(static_cast<double>(milliseconds) * static_cast<double>(0.001f));
+}
+#endif
 
 // One axis of a UV wibble's offset: the phase-shifted sine times the amplitude plus the velocity's travel, plus 8,
 // less its whole part rounded down to a multiple of 16 - then 8 back the other way (added below 0, taken off
 // otherwise). The v axis is stored as a float before that last step, the u axis isn't.
+#if defined(_M_IX86)
 float WibbleOffset(float t, float frequency, float phase, float amplitude, float velocity, bool storeFirst)
 {
     float result;
@@ -151,6 +174,18 @@ float WibbleOffset(float t, float frequency, float phase, float amplitude, float
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - doubles
+float WibbleOffset(float t, float frequency, float phase, float amplitude, float velocity, bool storeFirst)
+{
+    double x = std::sin(static_cast<double>(t) * frequency + phase) * amplitude + static_cast<double>(t) * velocity + 8.0;
+    auto whole = static_cast<int64_t>(std::trunc(x));
+    x -= static_cast<int32_t>(static_cast<uint32_t>(whole) & 0xFFFFFFF0u);
+    if (storeFirst)
+        x = static_cast<float>(x);
+    x = x < 0.0 ? x + 8.0 : x - 8.0; // (not below - or unordered - takes 8 off)
+    return static_cast<float>(x);
+}
+#endif
 
 // What both set-ups share: the alpha reference, culling, depth bias, the animations, and the specular material
 // (pass 0's flag 0x100) - or none, once, when the last material had it (0x00786E4C).

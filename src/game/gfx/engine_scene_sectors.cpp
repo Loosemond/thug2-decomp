@@ -147,7 +147,14 @@ int GeomCount70(void* geom) // (slot 36, through the jump 0x0048DF70)
 {
     return reinterpret_cast<int(__thiscall*)(void*)>((*static_cast<void***>(geom))[36])(geom);
 }
-int GeomSlot33(void* geom) { return reinterpret_cast<int(__thiscall*)(void*)>(&VirtualSlot33Jump)(geom); }
+int GeomSlot33(void* geom)
+{
+#if defined(_M_IX86)
+    return reinterpret_cast<int(__thiscall*)(void*)>(&VirtualSlot33Jump)(geom);
+#else // NOT ORIGINAL: no x86 jump stub elsewhere - the slot called directly
+    return reinterpret_cast<int(__thiscall*)(void*)>((*static_cast<void***>(geom))[33])(geom);
+#endif
+}
 int GeomCountC6F0(void* geom) // (slot 35, through the jump 0x0049C6F0)
 {
     return reinterpret_cast<int(__thiscall*)(void*)>((*static_cast<void***>(geom))[35])(geom);

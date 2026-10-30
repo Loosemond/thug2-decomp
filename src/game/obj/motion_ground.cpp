@@ -90,6 +90,7 @@ bool __cdecl GroundHit(Mth::Vector* triangle, const Mth::Vector* end, const Mth:
 
 // The original's convention: ECX the triangle, EDX the line's end; the start and the result on the stack (caller
 // pops); the result in AL.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void GroundHitStub()
 {
     __asm {
@@ -102,6 +103,7 @@ __declspec(naked) void GroundHitStub()
         ret
     }
 }
+#endif
 
 // 0x00424870
 void CMotionComponent::UpdateJump()

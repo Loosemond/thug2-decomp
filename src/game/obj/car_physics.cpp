@@ -64,6 +64,7 @@ void MatrixMultiply(Mth::Matrix* out, const Mth::Matrix* a, const Mth::Matrix* b
 
 // The game's C runtime asin (_CIasin, 0x00623560: the argument and result on the FPU stack; a library function, not
 // decompiled).
+#if defined(_M_IX86)
 double GameAsin(double value)
 {
     double result;
@@ -75,6 +76,9 @@ double GameAsin(double value)
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - the C library's asin
+double GameAsin(double value) { return std::asin(value); }
+#endif
 
 // The model's skeleton description (0x00493040, no source yet).
 CCarPhysicsComponent::BoneDesc* ModelBones(void* model)

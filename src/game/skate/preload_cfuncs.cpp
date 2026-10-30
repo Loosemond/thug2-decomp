@@ -28,6 +28,7 @@
 #include "game/skate/cas_options.h"
 #include "hook/game.h"
 #include "hook/hook.h"
+#include "game/skate/profile_cfuncs.h"
 
 namespace CFuncs {
 
@@ -93,6 +94,7 @@ bool SkipNode(Script::CStruct* node)
 
 // 0x005AAAA0 (gamenet-2's range: the list's name in EAX): every part of a global CAS part list with allow_random
 // preloaded (its mesh kept in memory).
+#if defined(_M_IX86)
 void PreloadPartList(uint32_t list)
 {
     __asm {
@@ -101,6 +103,9 @@ void PreloadPartList(uint32_t list)
         call ecx
     }
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - the rewritten function called directly
+void PreloadPartList(uint32_t list) { CFuncs::PreloadMeshes(list); }
+#endif
 
 // The CAS option lists (no source yet): 0x00485CF0 the option `descId` of a slot's global list; 0x00485D70 the
 // options of a slot's list matching a filter (0: any of them allowed to pick) into `out`, their count in `count`.

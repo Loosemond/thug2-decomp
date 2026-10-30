@@ -322,12 +322,16 @@ bool CGeom::PlatSetUVMatrix(uint32_t, int, const Mth::Matrix*)
 
 // --- the dispatchers --------------------------------------------------------------------------------------------
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stubs, only the original exe calls them
 #define NX_VIRTUAL_SLOT_JUMP(slot)                                                                                     \
     __declspec(naked) void VirtualSlot##slot##Jump()                                                                   \
     {                                                                                                                  \
         __asm mov eax, dword ptr [ecx]                                                                                 \
         __asm jmp dword ptr [eax + 4 * slot]                                                                           \
     }
+#else
+#define NX_VIRTUAL_SLOT_JUMP(slot)
+#endif
 
 NX_VIRTUAL_SLOT_JUMP(7)
 NX_VIRTUAL_SLOT_JUMP(8)

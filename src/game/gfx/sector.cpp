@@ -295,8 +295,13 @@ void CSector::SetRawVertices(const Mth::Vector* vertices)
 void CSector::PlayVCWibbleFromKeyframe(int sequence, int keyframe, int timeMs)
 {
     if (mp_geom)
+#if defined(_M_IX86)
         reinterpret_cast<void(__thiscall*)(void*, int, int, int)>(&VirtualSlot41Jump)(mp_geom, sequence, keyframe,
                                                                                     timeMs);
+#else // NOT ORIGINAL: no x86 jump stub elsewhere - the slot called directly
+        reinterpret_cast<void(__thiscall*)(void*, int, int, int)>((*static_cast<void***>(mp_geom))[41])(
+            mp_geom, sequence, keyframe, timeMs);
+#endif
 }
 
 // 0x0049E830

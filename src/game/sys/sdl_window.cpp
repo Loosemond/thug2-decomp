@@ -112,10 +112,14 @@ void CreateSdlWindow()
     if (!s_window)
         DebugLog::Printf(DebugLog::Level::kError, "Failed to create window! Error: %s\n", SDL_GetError());
 
+#if defined(_WIN32)
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
     SDL_GetWindowWMInfo(s_window, &info);
     GameWindow() = info.info.win.window;
+#else // NOT ORIGINAL: no Windows window elsewhere - the SDL window stands for it (the platform layer knows)
+    GameWindow() = reinterpret_cast<HWND>(s_window);
+#endif
     Focused() = true;
 
     SDL_ShowCursor(0);

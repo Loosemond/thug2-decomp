@@ -59,6 +59,7 @@ void MatrixMultiply(Mth::Matrix* out, const Mth::Matrix* a, const Mth::Matrix* b
 
 // The right stick's turn of the facing (0x00525468-): the sine rounded to float, the cosine kept at full
 // precision: x' = z * sin + cos * x, z' = -(sin * x) + z * cos.
+#if defined(_M_IX86)
 void TurnByStick(double angle, float* x, float* z)
 {
     float sine;
@@ -86,6 +87,16 @@ void TurnByStick(double angle, float* x, float* z)
         fstp dword ptr [edx]
     }
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - doubles
+void TurnByStick(double angle, float* x, float* z)
+{
+    double sine = static_cast<float>(std::sin(angle)), cosine = std::cos(angle);
+    double x0 = *x, z0 = *z;
+    double turnedZ = -(sine * x0) + z0 * cosine;
+    *x = static_cast<float>(z0 * sine + cosine * x0);
+    *z = static_cast<float>(turnedZ);
+}
+#endif
 
 } // namespace
 

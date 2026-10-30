@@ -1108,6 +1108,7 @@ void __fastcall UpdateWheelRotationsOf(CVehicleComponent* vehicle) { vehicle->Up
 
 // 0x004351C0 as the game calls it: the original update (0x0043C1D0, asleep) calls UpdateSkeleton right after it
 // without loading ECX again - kept.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void UpdateWheelRotationsStub()
 {
     __asm {
@@ -1117,6 +1118,7 @@ __declspec(naked) void UpdateWheelRotationsStub()
         ret
     }
 }
+#endif
 
 } // namespace
 

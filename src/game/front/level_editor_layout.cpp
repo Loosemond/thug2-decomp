@@ -1023,11 +1023,16 @@ void ResetToLevel(const File& keep)
 // The crash hook's write: no C++ objects here (structured exception handling), no allocation.
 void WriteSnapshotGuarded()
 {
+#ifdef _MSC_VER
     __try {
         if (WriteWhole(g_snapshotFolder, g_snapshotPath, g_snapshot.data(), g_snapshot.size()))
             g_snapshotWritten = true;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
+#else // NOT ORIGINAL: no structured exceptions outside MSVC; a fault here ends the process anyway
+    if (WriteWhole(g_snapshotFolder, g_snapshotPath, g_snapshot.data(), g_snapshot.size()))
+        g_snapshotWritten = true;
+#endif
 }
 
 } // namespace

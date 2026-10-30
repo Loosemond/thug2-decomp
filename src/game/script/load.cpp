@@ -324,6 +324,7 @@ Script::CSymbolTableEntry* __cdecl CreateScriptSymbolRegisters(uint32_t size, co
 } // namespace
 
 // 0x00472240: the token in ECX, the name and file name on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::ParseSymbolDefinitionStub()
 {
     __asm {
@@ -335,9 +336,11 @@ __declspec(naked) void Script::ParseSymbolDefinitionStub()
         ret
     }
 }
+#endif
 
 // 0x0046FE40: the size in EAX, the code in EBX, the name, checksum and file name on the stack (the caller pops
 // them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Script::CreateScriptSymbolStub()
 {
     __asm {
@@ -351,6 +354,7 @@ __declspec(naked) void Script::CreateScriptSymbolStub()
         ret
     }
 }
+#endif
 
 namespace {
 struct ScriptAdapter {

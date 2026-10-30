@@ -490,6 +490,7 @@ bool __cdecl ApplyCatRegisters(CStruct* loaded, CStruct* customSkater)
 } // namespace
 
 // 0x005A5F70: the name in EAX, the buffer in ESI, the type in EDI.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void MakeFileNameStub()
 {
     __asm {
@@ -501,8 +502,10 @@ __declspec(naked) void MakeFileNameStub()
         ret
     }
 }
+#endif
 
 // 0x005A60C0: the letter in AL (ECX and EDX kept, as the original does - DeleteMemCardFile relies on EDX).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void TypeFromLetterStub()
 {
     __asm {
@@ -517,8 +520,10 @@ __declspec(naked) void TypeFromLetterStub()
         ret
     }
 }
+#endif
 
 // 0x005A6180: the type in EAX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void IconSpaceRequiredStub()
 {
     __asm {
@@ -528,8 +533,10 @@ __declspec(naked) void IconSpaceRequiredStub()
         ret
     }
 }
+#endif
 
 // 0x005A6210: the type in EAX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void TypeVersionStub()
 {
     __asm {
@@ -539,8 +546,10 @@ __declspec(naked) void TypeVersionStub()
         ret
     }
 }
+#endif
 
 // 0x005A62A0: the type in EAX, the name in ECX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void TypeFileNameStub()
 {
     __asm {
@@ -551,8 +560,10 @@ __declspec(naked) void TypeFileNameStub()
         ret
     }
 }
+#endif
 
 // 0x005A6390: the type in EDI, the name and buffer on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void MakeFolderFileNameStub()
 {
     __asm {
@@ -564,8 +575,10 @@ __declspec(naked) void MakeFolderFileNameStub()
         ret
     }
 }
+#endif
 
 // 0x005A63E0: the first summary in EDI, the second in ESI.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void IsLaterStub()
 {
     __asm {
@@ -576,8 +589,10 @@ __declspec(naked) void IsLaterStub()
         ret
     }
 }
+#endif
 
 // 0x005A6610: the saved contents in EAX, the summary in ESI, the type on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteSummaryStub()
 {
     __asm {
@@ -589,8 +604,10 @@ __declspec(naked) void WriteSummaryStub()
         ret
     }
 }
+#endif
 
 // 0x005A6CD0: the size in ESI.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void RoundUpToCardBlockStub()
 {
     __asm {
@@ -600,8 +617,10 @@ __declspec(naked) void RoundUpToCardBlockStub()
         ret
     }
 }
+#endif
 
 // 0x005A7340: the type in ECX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void TypeFileSizeStub()
 {
     __asm {
@@ -611,8 +630,10 @@ __declspec(naked) void TypeFileSizeStub()
         ret
     }
 }
+#endif
 
 // 0x005A6C80: the loaded structure in EDI, the custom skater on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ApplyCatAndCustomSkaterStub()
 {
     __asm {
@@ -623,6 +644,7 @@ __declspec(naked) void ApplyCatAndCustomSkaterStub()
         ret
     }
 }
+#endif
 
 } // namespace Mc
 

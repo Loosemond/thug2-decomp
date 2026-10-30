@@ -75,6 +75,7 @@ bool __cdecl ArgumentStartsWithRegisters(const char* argument, const char* optio
 } // namespace
 
 // 0x005B5C90: the argument in ECX, the option in EBX; the result in AL.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ArgumentStartsWithStub()
 {
     __asm {
@@ -89,6 +90,7 @@ __declspec(naked) void ArgumentStartsWithStub()
         ret
     }
 }
+#endif
 
 // 0x005B5D30
 const char* __cdecl GetArgumentValue(const char* option, int argc, char** argv)

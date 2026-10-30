@@ -215,6 +215,7 @@ Obj::CSkater* __fastcall LocalSkaterOf(Skate* skate) { return skate->GetLocalSka
 Obj::CSkater* __fastcall SkaterByIdOf(Skate* skate, int, uint32_t id) { return skate->GetSkaterById(id); }
 } // namespace
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Skate::GetLocalSkaterStub()
 {
     __asm {
@@ -224,7 +225,9 @@ __declspec(naked) void Skate::GetLocalSkaterStub()
         ret
     }
 }
+#endif
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void Skate::GetSkaterByIdStub()
 {
     __asm {
@@ -235,6 +238,7 @@ __declspec(naked) void Skate::GetSkaterByIdStub()
         ret 4
     }
 }
+#endif
 
 // --- adding and removing --------------------------------------------------------------------------------------------
 

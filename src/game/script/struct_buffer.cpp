@@ -108,6 +108,7 @@ uint32_t WriteInteger(uint32_t name, int value, uint8_t* buffer, uint32_t size)
 }
 
 // The name in ECX, the value in EBX; the buffer and size on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteIntegerStub()
 {
     __asm {
@@ -120,6 +121,7 @@ __declspec(naked) void WriteIntegerStub()
         ret
     }
 }
+#endif
 
 // 0x00479A50
 uint32_t WriteFloat(uint8_t* buffer, uint32_t name, uint32_t size, float value)
@@ -137,6 +139,7 @@ uint32_t WriteFloat(uint8_t* buffer, uint32_t name, uint32_t size, float value)
 }
 
 // The buffer in ECX, the name in EDX, the size in ESI; the value on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteFloatStub()
 {
     __asm {
@@ -149,6 +152,7 @@ __declspec(naked) void WriteFloatStub()
         ret
     }
 }
+#endif
 
 namespace {
 
@@ -179,6 +183,7 @@ uint32_t WriteLocalString(uint8_t* buffer, const char* string, uint32_t name, ui
 }
 
 // The buffer in EAX, the string in ECX; the name and size on the stack (the caller pops them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteStringStub()
 {
     __asm {
@@ -191,6 +196,8 @@ __declspec(naked) void WriteStringStub()
         ret
     }
 }
+#endif
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void WriteLocalStringStub()
 {
     __asm {
@@ -203,6 +210,7 @@ __declspec(naked) void WriteLocalStringStub()
         ret
     }
 }
+#endif
 
 // 0x00479B80
 uint32_t WriteArrayToBuffer(CArray* array, uint8_t* buffer, uint32_t size, int assert)

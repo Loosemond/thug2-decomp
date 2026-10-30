@@ -286,6 +286,7 @@ bool ButtonPressedAgain(const uint8_t* controlData, uint16_t* seenUp, uint32_t m
     return (*seenUp & mask) != 0;
 }
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ButtonPressedAgainStub()
 {
     __asm {
@@ -297,6 +298,7 @@ __declspec(naked) void ButtonPressedAgainStub()
         ret
     }
 }
+#endif
 
 namespace {
 // The sound effects manager (a reference-counted singleton) and its main volume (the original calls it as a method

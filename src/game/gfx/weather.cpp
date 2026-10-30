@@ -275,6 +275,7 @@ bool CWeather::ScriptSetRainActive(Script::CStruct*, Script::CScript*)
 }
 
 // 0x004A1090
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot1Jump()
 {
     __asm {
@@ -282,8 +283,10 @@ __declspec(naked) void VirtualSlot1Jump()
         jmp dword ptr [eax + 4]
     }
 }
+#endif
 
 // 0x004A10A0
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void VirtualSlot3Jump()
 {
     __asm {
@@ -291,6 +294,7 @@ __declspec(naked) void VirtualSlot3Jump()
         jmp dword ptr [eax + 0xC]
     }
 }
+#endif
 
 } // namespace Nx
 

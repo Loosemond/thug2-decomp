@@ -400,6 +400,7 @@ void __cdecl ComponentDestroyedCdecl(CScript* script, Obj::CBaseComponent* compo
 } // namespace
 
 // 0x00472D20: thiscall, RET 4, ECX kept.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void ComponentDestroyedStub()
 {
     __asm {
@@ -412,6 +413,7 @@ __declspec(naked) void ComponentDestroyedStub()
         ret 4
     }
 }
+#endif
 
 } // namespace Script
 

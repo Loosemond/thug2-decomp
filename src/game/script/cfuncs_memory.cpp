@@ -252,6 +252,7 @@ bool __cdecl CFunc_DumpHeaps(CStruct* params, CScript*)
 }
 
 // 0x00448330: the "to the dump file" flag in BL, the "print" flag on the stack (the caller pops it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void DumpPoolUsageStub()
 {
     __asm {
@@ -263,6 +264,7 @@ __declspec(naked) void DumpPoolUsageStub()
         ret
     }
 }
+#endif
 
 } // namespace CFuncs
 

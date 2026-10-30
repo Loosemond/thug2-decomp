@@ -268,6 +268,7 @@ int FindWadEntry(uint32_t checksum)
 }
 
 // 0x004533A0: the checksum in EBX (ECX and EDX not kept).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void FindWadEntryStub()
 {
     __asm {
@@ -277,6 +278,7 @@ __declspec(naked) void FindWadEntryStub()
         ret
     }
 }
+#endif
 
 // 0x004533E0
 uint32_t __cdecl StreamExists(uint32_t checksum, int music)

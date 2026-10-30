@@ -15,6 +15,7 @@
 #include "game/script/struct.h"
 #include "hook/game.h"
 #include "hook/hook.h"
+#include "game/gfx/particle_maths.h"
 
 namespace Nx {
 
@@ -46,6 +47,7 @@ Script::CStruct* NewStructure()
 
 // The engine's helpers (not yet rewritten; register arguments).
 // 0x00495130 / 0x004951B0 (ECX a, EDX b, ESI out; returns out): each component b's where it's below / above a's.
+#if defined(_M_IX86)
 Mth::Vector* CallMinOrMax(uint32_t code, const Mth::Vector* a, const Mth::Vector* b, Mth::Vector* destination)
 {
     Mth::Vector* result;
@@ -59,6 +61,12 @@ Mth::Vector* CallMinOrMax(uint32_t code, const Mth::Vector* a, const Mth::Vector
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - the rewritten helpers called directly
+Mth::Vector* CallMinOrMax(uint32_t code, const Mth::Vector* a, const Mth::Vector* b, Mth::Vector* destination)
+{
+    return code == 0x00495130 ? Nx::MinVector(destination, a, b) : Nx::MaxVector(destination, a, b);
+}
+#endif
 Mth::Vector* MinOf(const Mth::Vector* a, const Mth::Vector* b, Mth::Vector* out)
 {
     return CallMinOrMax(0x00495130, a, b, out);
@@ -69,6 +77,7 @@ Mth::Vector* MaxOf(const Mth::Vector* a, const Mth::Vector* b, Mth::Vector* out)
 }
 // 0x00494F10 (thiscall on `out`, the 14 words of arguments popped by the caller): per component, the extreme of the
 // quadratic through `start` (at 0), `mid` (at `midTime`) and `end` (at `life`); w 0. Returns out.
+#if defined(_M_IX86)
 Mth::Vector* CurveExtremes(Mth::Vector* destination, const Mth::Vector& start, const Mth::Vector& mid, const Mth::Vector& end,
                            float midTime, float life)
 {
@@ -94,6 +103,14 @@ Mth::Vector* CurveExtremes(Mth::Vector* destination, const Mth::Vector& start, c
     }
     return result;
 }
+#else // NOT ORIGINAL: no x87 / x86 registers elsewhere - the rewritten helper called directly
+Mth::Vector* CurveExtremes(Mth::Vector* destination, const Mth::Vector& start, const Mth::Vector& mid, const Mth::Vector& end,
+                           float midTime, float life)
+{
+    Nx::sQuadraticPoints points{start, mid, end, midTime, life};
+    return Nx::QuadraticLowest(destination, &points);
+}
+#endif
 
 float Round(double value) { return static_cast<float>(value); }
 

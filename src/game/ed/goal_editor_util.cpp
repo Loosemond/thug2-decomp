@@ -197,6 +197,7 @@ void __stdcall RunMarkerObjectScript(int index)
 namespace {
 
 // 0x004E6890: the type in EAX; EAX back (ECX and EDX as the call leaves them).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void GoalTypeDefaultsStub()
 {
     __asm {
@@ -206,8 +207,10 @@ __declspec(naked) void GoalTypeDefaultsStub()
         ret
     }
 }
+#endif
 
 // 0x004E69D0: its callers keep using ECX (the goal) after the call: kept (EAX 0 as the original leaves it).
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void InitEditedGoalStub()
 {
     __asm {
@@ -218,6 +221,7 @@ __declspec(naked) void InitEditedGoalStub()
         ret
     }
 }
+#endif
 
 } // namespace
 

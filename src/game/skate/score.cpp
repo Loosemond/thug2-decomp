@@ -183,6 +183,7 @@ int Score::ScoreIncrement(int value)
 }
 
 // Update (0x00563580) keeps EDX across the call: the original's leaves it alone.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) int ScoreIncrementStub()
 {
     __asm {
@@ -194,6 +195,7 @@ __declspec(naked) int ScoreIncrementStub()
         ret
     }
 }
+#endif
 
 // 0x00561290
 void Score::SetSkaterId(int16_t id) { m_skaterId = id; }

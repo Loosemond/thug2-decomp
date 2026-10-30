@@ -121,6 +121,7 @@ uint32_t PrimitiveCount(uint32_t type, uint32_t count)
     }
 }
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void PrimitiveCountStub()
 {
     __asm {
@@ -131,6 +132,7 @@ __declspec(naked) void PrimitiveCountStub()
         ret
     }
 }
+#endif
 
 // 0x004CDD00
 void DrawBillboardMesh(sMesh* mesh, const float* yAxis, const float* xAxis, const float* zAxis)
@@ -245,6 +247,7 @@ void DrawBillboardMesh(sMesh* mesh, const float* yAxis, const float* xAxis, cons
     (void)viewport;
 }
 
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void DrawBillboardMeshStub()
 {
     __asm {
@@ -257,6 +260,7 @@ __declspec(naked) void DrawBillboardMeshStub()
         ret
     }
 }
+#endif
 
 // 0x004CDA60
 sBillboardBatch* sBillboardManager::Find(const uint8_t* material)

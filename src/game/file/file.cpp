@@ -249,6 +249,7 @@ bool __cdecl HandledByArchiveAccessor() { return File::g_handledByArchive; }
 File::Handle __cdecl OpenOnDiskFromEdx(const char* name) { return File::OpenOnDisk(name); }
 
 // The original takes its argument in EDX.
+#if defined(_M_IX86) // NOT ORIGINAL: x86 register stub, only the original exe calls it
 __declspec(naked) void OpenOnDiskAdapter()
 {
     __asm {
@@ -258,6 +259,7 @@ __declspec(naked) void OpenOnDiskAdapter()
         ret
     }
 }
+#endif
 
 } // namespace
 
