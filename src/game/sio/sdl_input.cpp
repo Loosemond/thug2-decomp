@@ -122,6 +122,9 @@ struct PadBinds {
 
 InputSettings s_settings;
 KeyBinds s_keys;
+// Not PartyMod's - up to two more keys for the tricks, spins, nollie and switch ([Keybinds] Ollie2=, Ollie3=, ...: SDL
+// scan codes; none unless set), for a keyboard without a numpad. The web build has a laptop's (LoadKeyBinds).
+KeyBinds s_moreKeys[2];
 PadBinds s_pad;
 bool s_usingKeyboard = true;
 
@@ -543,8 +546,15 @@ void PollKeyboard(Device* device)
     UpdateMenuKeys(keys);
     if (KeyboardOnScreen())
         return;
-    // (a binding's scan code is passed as its low byte)
-    auto down = [keys](SDL_Scancode key) { return KeyDown(keys, static_cast<uint8_t>(key)) != 0; };
+    // (a binding's scan code is passed as its low byte; and its more keys, s_moreKeys - not PartyMod's)
+    auto down = [keys](SDL_Scancode KeyBinds::*binding) {
+        if (KeyDown(keys, static_cast<uint8_t>(s_keys.*binding)))
+            return true;
+        for (const KeyBinds& more : s_moreKeys)
+            if (more.*binding != SDL_SCANCODE_UNKNOWN && KeyDown(keys, static_cast<uint8_t>(more.*binding)))
+                return true;
+        return false;
+    };
     auto menuDown = [](uint8_t state) { return s_inMenu && state == 1; };
 
     // Not original - the level editor (game/front/level_editor.h) flies on W/A/S/D/Q/E/Shift/Ctrl/Space: while it
@@ -557,51 +567,51 @@ void PollKeyboard(Device* device)
         return;
     }
 
-    if (down(s_keys.menu))
+    if (down(&KeyBinds::menu))
         data[2] |= 1 << 3;
-    if (down(s_keys.cameraToggle))
+    if (down(&KeyBinds::cameraToggle))
         data[2] |= 1 << 0;
-    if (down(s_keys.focus))
+    if (down(&KeyBinds::focus))
         data[2] |= 1 << 1;
-    if (down(s_keys.cameraSwivelLock))
+    if (down(&KeyBinds::cameraSwivelLock))
         data[2] |= 1 << 2;
 
-    if (down(s_keys.grind) || menuDown(s_menuKeys.extra)) {
+    if (down(&KeyBinds::grind) || menuDown(s_menuKeys.extra)) {
         data[3] |= 1 << 4;
         data[12] = 0xFF;
     }
-    if (down(s_keys.grab) || menuDown(s_menuKeys.negative)) {
+    if (down(&KeyBinds::grab) || menuDown(s_menuKeys.negative)) {
         data[3] |= 1 << 5;
         data[13] = 0xFF;
     }
-    if (down(s_keys.ollie) || menuDown(s_menuKeys.affirmative)) {
+    if (down(&KeyBinds::ollie) || menuDown(s_menuKeys.affirmative)) {
         data[3] |= 1 << 6;
         data[14] = 0xFF;
     }
-    if (down(s_keys.kick) || menuDown(s_menuKeys.menu)) {
+    if (down(&KeyBinds::kick) || menuDown(s_menuKeys.menu)) {
         data[3] |= 1 << 7;
         data[15] = 0xFF;
     }
 
     // the shoulders
     if (s_settings.ps2Controls) {
-        if (down(s_keys.leftSpin) || menuDown(s_menuKeys.rotateLeft)) {
+        if (down(&KeyBinds::leftSpin) || menuDown(s_menuKeys.rotateLeft)) {
             data[3] |= 1 << 2;
             data[16] = 0xFF;
         }
-        if (down(s_keys.rightSpin) || menuDown(s_menuKeys.rotateRight)) {
+        if (down(&KeyBinds::rightSpin) || menuDown(s_menuKeys.rotateRight)) {
             data[3] |= 1 << 3;
             data[17] = 0xFF;
             if (s_editingPark)
                 data[20] |= 1 << 0; // black, editing a park
         }
-        if (down(s_keys.nollie)) {
+        if (down(&KeyBinds::nollie)) {
             data[3] |= 1 << 0;
             data[18] = 0xFF;
             if (s_inMenu)
                 data[20] |= 1 << 1; // white, in a menu
         }
-        if (down(s_keys.switchRevert) || menuDown(s_menuKeys.zoom)) {
+        if (down(&KeyBinds::switchRevert) || menuDown(s_menuKeys.zoom)) {
             data[3] |= 1 << 1;
             data[19] = 0xFF;
             if (s_inMenu)
@@ -611,26 +621,26 @@ void PollKeyboard(Device* device)
         }
     } else if (s_editingPark && !KeyboardOnScreen()) {
         // editing a park: the right trigger is L1
-        if (down(s_keys.switchRevert)) {
+        if (down(&KeyBinds::switchRevert)) {
             data[3] |= 1 << 2;
             data[16] = 0xFF;
         }
-        if (down(s_keys.nollie)) {
+        if (down(&KeyBinds::nollie)) {
             data[3] |= 1 << 0;
             data[18] = 0xFF;
         }
-        if (down(s_keys.leftSpin))
+        if (down(&KeyBinds::leftSpin))
             data[20] |= 1 << 1;
-        if (down(s_keys.rightSpin))
+        if (down(&KeyBinds::rightSpin))
             data[20] |= 1 << 0;
     } else {
-        if (down(s_keys.nollie) || menuDown(s_menuKeys.rotateLeft)) {
+        if (down(&KeyBinds::nollie) || menuDown(s_menuKeys.rotateLeft)) {
             data[3] |= 1 << 2;
             data[16] = 0xFF;
             data[3] |= 1 << 0;
             data[18] = 0xFF;
         }
-        if (down(s_keys.switchRevert) || menuDown(s_menuKeys.rotateRight)) {
+        if (down(&KeyBinds::switchRevert) || menuDown(s_menuKeys.rotateRight)) {
             data[3] |= 1 << 3;
             data[17] = 0xFF;
             data[3] |= 1 << 1;
@@ -643,55 +653,55 @@ void PollKeyboard(Device* device)
         // Original behaviour (PartyMod v1.0.4): the other way round - spin left white, spin right black:
         //     if (down(s_keys.leftSpin)) data[20] |= 1 << 1;
         //     if (down(s_keys.rightSpin) || menuDown(s_menuKeys.zoom)) data[20] |= 1 << 0;
-        if (down(s_keys.leftSpin))
+        if (down(&KeyBinds::leftSpin))
             data[20] |= 1 << 0; // black
-        if (down(s_keys.rightSpin))
+        if (down(&KeyBinds::rightSpin))
             data[20] |= 1 << 1; // white
         if (menuDown(s_menuKeys.zoom))
             data[20] |= 1 << 0;
     }
-    if (down(s_keys.caveman))
+    if (down(&KeyBinds::caveman))
         PressCaveman(data);
 
     // the d-pad: the item keys
-    if (down(s_keys.itemUp) || menuDown(s_menuKeys.up)) {
+    if (down(&KeyBinds::itemUp) || menuDown(s_menuKeys.up)) {
         data[2] |= 1 << 4;
         data[10] = 0xFF;
     }
-    if (down(s_keys.itemRight) || menuDown(s_menuKeys.right)) {
+    if (down(&KeyBinds::itemRight) || menuDown(s_menuKeys.right)) {
         data[2] |= 1 << 5;
         data[8] = 0xFF;
     }
-    if (down(s_keys.itemDown) || menuDown(s_menuKeys.down)) {
+    if (down(&KeyBinds::itemDown) || menuDown(s_menuKeys.down)) {
         data[2] |= 1 << 6;
         data[11] = 0xFF;
     }
-    if (down(s_keys.itemLeft) || menuDown(s_menuKeys.left)) {
+    if (down(&KeyBinds::itemLeft) || menuDown(s_menuKeys.left)) {
         data[2] |= 1 << 7;
         data[9] = 0xFF;
     }
 
     // the sticks: opposite keys together cancel out
-    if (down(s_keys.cameraLeft) && !down(s_keys.cameraRight))
+    if (down(&KeyBinds::cameraLeft) && !down(&KeyBinds::cameraRight))
         data[4] = 0;
-    if (down(s_keys.cameraRight) && !down(s_keys.cameraLeft))
+    if (down(&KeyBinds::cameraRight) && !down(&KeyBinds::cameraLeft))
         data[4] = 255;
-    if (down(s_keys.cameraUp) && !down(s_keys.cameraDown))
+    if (down(&KeyBinds::cameraUp) && !down(&KeyBinds::cameraDown))
         data[5] = 0;
-    if (down(s_keys.cameraDown) && !down(s_keys.cameraUp))
+    if (down(&KeyBinds::cameraDown) && !down(&KeyBinds::cameraUp))
         data[5] = 255;
     // Not original - THAW's half-stick key (PartyMod's THAW build: Feeble, 64 / 192 instead of 0 / 255) while THAW's
     // BMX is ridden (game/skater/thaw_bmx.h HalfStickKey): its grind pick reads how far the stick is pushed.
     // Original behaviour: the Feeble binding is read but unused - the movement keys always give 0 / 255.
-    const bool half = down(s_keys.feeble) && Skater::ThawBmx::HalfStickKey();
+    const bool half = down(&KeyBinds::feeble) && Skater::ThawBmx::HalfStickKey();
     const uint8_t low = half ? 64 : 0, high = half ? 192 : 255;
-    if (down(s_keys.left) && !down(s_keys.right))
+    if (down(&KeyBinds::left) && !down(&KeyBinds::right))
         data[6] = low;
-    if (down(s_keys.right) && !down(s_keys.left))
+    if (down(&KeyBinds::right) && !down(&KeyBinds::left))
         data[6] = high;
-    if (down(s_keys.up) && !down(s_keys.down))
+    if (down(&KeyBinds::up) && !down(&KeyBinds::down))
         data[7] = low;
-    if (down(s_keys.down) && !down(s_keys.up))
+    if (down(&KeyBinds::down) && !down(&KeyBinds::up))
         data[7] = high;
 }
 
@@ -910,10 +920,49 @@ void LoadKeyBinds()
     s_keys.cameraUp = Key("CameraUp", SDL_SCANCODE_KP_PLUS);
     s_keys.cameraDown = Key("CameraDown", SDL_SCANCODE_KP_MINUS);
 
+#if defined(THUG2_WEB) // NOT ORIGINAL (the web port): the d-pad on the arrow keys - I/J/K/L are the laptop's tricks
+    s_keys.itemRight = Key("ItemRight", SDL_SCANCODE_RIGHT);
+    s_keys.itemLeft = Key("ItemLeft", SDL_SCANCODE_LEFT);
+    s_keys.itemUp = Key("ItemUp", SDL_SCANCODE_UP);
+    s_keys.itemDown = Key("ItemDown", SDL_SCANCODE_DOWN);
+#else
     s_keys.itemRight = Key("ItemRight", SDL_SCANCODE_L);
     s_keys.itemLeft = Key("ItemLeft", SDL_SCANCODE_J);
     s_keys.itemUp = Key("ItemUp", SDL_SCANCODE_I);
     s_keys.itemDown = Key("ItemDown", SDL_SCANCODE_K);
+#endif
+
+    // Not PartyMod's - the more keys (s_moreKeys). The web build's, for a laptop: the numpad's layout on the right
+    // hand's home row - J flip, K ollie, L grab, I grind above them; H / ; the spins; U / O nollie and switch; and
+    // Space a second ollie.
+#if defined(THUG2_WEB)
+#define THUG2_LAPTOP_KEY(key) SDL_SCANCODE_##key
+#else
+#define THUG2_LAPTOP_KEY(key) SDL_SCANCODE_UNKNOWN
+#endif
+    struct MoreKeys {
+        const char* name;
+        SDL_Scancode KeyBinds::*key;
+        SDL_Scancode second, third;
+    };
+    static const MoreKeys kMoreKeys[] = {
+        {"Grind", &KeyBinds::grind, THUG2_LAPTOP_KEY(I), SDL_SCANCODE_UNKNOWN},
+        {"Grab", &KeyBinds::grab, THUG2_LAPTOP_KEY(L), SDL_SCANCODE_UNKNOWN},
+        {"Ollie", &KeyBinds::ollie, THUG2_LAPTOP_KEY(K), THUG2_LAPTOP_KEY(SPACE)},
+        {"Flip", &KeyBinds::kick, THUG2_LAPTOP_KEY(J), SDL_SCANCODE_UNKNOWN},
+        {"SpinLeft", &KeyBinds::leftSpin, THUG2_LAPTOP_KEY(H), SDL_SCANCODE_UNKNOWN},
+        {"SpinRight", &KeyBinds::rightSpin, THUG2_LAPTOP_KEY(SEMICOLON), SDL_SCANCODE_UNKNOWN},
+        {"Nollie", &KeyBinds::nollie, THUG2_LAPTOP_KEY(U), SDL_SCANCODE_UNKNOWN},
+        {"Switch", &KeyBinds::switchRevert, THUG2_LAPTOP_KEY(O), SDL_SCANCODE_UNKNOWN},
+    };
+#undef THUG2_LAPTOP_KEY
+    char name[32];
+    for (const MoreKeys& more : kMoreKeys) {
+        std::snprintf(name, sizeof(name), "%s2", more.name);
+        s_moreKeys[0].*more.key = Key(name, more.second);
+        std::snprintf(name, sizeof(name), "%s3", more.name);
+        s_moreKeys[1].*more.key = Key(name, more.third);
+    }
 }
 
 PadButton Button(const char* name, int fallback)
