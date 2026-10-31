@@ -315,7 +315,9 @@ void Update(Mdl::FrontEnd* frontEnd)
     }
     // In the front end, with the main menu up: its scripts loaded (not the early self-tests' stand-in symbol table,
     // which run this before the game is up), then a second more for the menu to settle.
-    if (Nx::CurrentLevel() != 0 || (frontEnd && frontEnd->m_paused) || !IsScript(Checksum("main_menu_skate_now")))
+    // (the web port: the retail CD's scripts have no PartyMod main_menu_skate_now - its main menu's create_main_menu)
+    if (Nx::CurrentLevel() != 0 || (frontEnd && frontEnd->m_paused) ||
+        !(IsScript(Checksum("main_menu_skate_now")) || IsScript(Checksum("create_main_menu"))))
         return;
     if (++s_frames < 60)
         return;

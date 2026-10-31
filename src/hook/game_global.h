@@ -21,7 +21,36 @@
 // GAME_GLOBAL_UNCHECKED: a start value the check can't compare byte for byte (pointers to strings or functions -
 // ours aren't at the original's addresses).
 
-#ifdef THUG2_STANDALONE
+#if defined(THUG2_STANDALONE) && defined(THUG2_WEB)
+
+// NOT ORIGINAL (the web port, port/): as in the hooked build, each global is the variable at its address (the exe's
+// data is loaded there, and the source still reads many by address), its start value written there at start-up - the
+// retail exe's .data is encrypted, so the source's start values are what it starts with (port/src/hook/).
+template <typename T>
+using GameGlobal = T&;
+void PlaceGlobalStart(uint32_t address, const void* value, uint32_t size, const char* name);
+template <typename T>
+struct GlobalStart {
+    T value;
+};
+template <typename T>
+struct GlobalPlacer {
+    GlobalPlacer(uint32_t address, const GlobalStart<T>* start, const char* name)
+    {
+        PlaceGlobalStart(address, &start->value, static_cast<uint32_t>(sizeof(T)), name);
+    }
+};
+#define GAME_GLOBAL_CONCAT2(a, b) a##b
+#define GAME_GLOBAL_CONCAT(a, b) GAME_GLOBAL_CONCAT2(a, b)
+#define GAME_GLOBAL(type, name, address, ...)                                                                  \
+    GameGlobal<type> name = GameVariable<type>(address);                                                       \
+    static const GlobalStart<type> GAME_GLOBAL_CONCAT(g_globalStart_, __LINE__){{__VA_ARGS__}};               \
+    static GlobalPlacer<type> GAME_GLOBAL_CONCAT(g_global_, __LINE__)(address,                                 \
+                                                                      &GAME_GLOBAL_CONCAT(g_globalStart_, __LINE__), \
+                                                                      #name)
+#define GAME_GLOBAL_UNCHECKED(type, name, address, ...) GAME_GLOBAL(type, name, address, __VA_ARGS__)
+
+#elif defined(THUG2_STANDALONE)
 
 template <typename T>
 using GameGlobal = T;

@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <new>
 #include <type_traits>
 #include <vector>
 
@@ -209,12 +210,44 @@ constexpr int kCalleePop = CalleePop<std::decay_t<F>>::value;
 #undef REPLACE_UNCHECKED
 #if defined(THUG2_WEB) // NOT ORIGINAL (the web port): each line puts its function at the original's address in the
                        // function table, for calls by address and the exe's vtables (hook/game.h)
+// A member function returning a class by value takes its hidden result pointer after `this` in the original (MSVC's
+// thiscall: the first stack argument, for any class) and before it in WebAssembly's ABI - and the game calls slots and
+// addresses the original's way (`Call<Mth::Vector*>(slot, &result, ...)`). Such a function goes in the table as an
+// adapter taking them in the original's order (and returning the pointer, as MSVC's do).
+template <typename R, typename C, auto f, typename... A>
+struct WebResultAdapter {
+    static R* Call(C* self, R* result, A... args) { return new (result) R((self->*f)(args...)); }
+};
+template <typename F, F f>
+struct WebEntry {
+    static void* Get() { return CodeAddress(f); }
+};
+template <typename R, typename C, typename... A, R (C::*f)(A...)>
+struct WebEntry<R (C::*)(A...), f> {
+    static void* Get()
+    {
+        if constexpr (std::is_class_v<R>)
+            return CodeAddress(&WebResultAdapter<R, C, f, A...>::Call);
+        else
+            return CodeAddress(f);
+    }
+};
+template <typename R, typename C, typename... A, R (C::*f)(A...) const>
+struct WebEntry<R (C::*)(A...) const, f> {
+    static void* Get()
+    {
+        if constexpr (std::is_class_v<R>)
+            return CodeAddress(&WebResultAdapter<R, const C, f, A...>::Call);
+        else
+            return CodeAddress(f);
+    }
+};
 #define REPLACE(address, ...)                                                                        \
     static ReplacementRegistrar REPLACE_CONCAT(g_replace_, __LINE__)(                                \
-        address, CodeAddress(__VA_ARGS__), -1, #__VA_ARGS__, __FILE__)
+        address, WebEntry<std::decay_t<decltype(__VA_ARGS__)>, __VA_ARGS__>::Get(), -1, #__VA_ARGS__, __FILE__)
 #define REPLACE_SOURCE_ONLY(address, ...)                                                            \
     static ReplacementRegistrar REPLACE_CONCAT(g_replace_, __LINE__)(                                \
-        address, CodeAddress(__VA_ARGS__), -1, #__VA_ARGS__, __FILE__, true)
+        address, WebEntry<std::decay_t<decltype(__VA_ARGS__)>, __VA_ARGS__>::Get(), -1, #__VA_ARGS__, __FILE__, true)
 #else
 #define REPLACE(address, ...) static_assert(true)
 #define REPLACE_SOURCE_ONLY(address, ...) static_assert(true)

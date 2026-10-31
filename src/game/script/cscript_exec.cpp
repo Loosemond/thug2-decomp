@@ -54,6 +54,10 @@
 #include "hook/hook.h"
 #include "hook/log.h"
 
+#if defined(THUG2_WEB) // NOT ORIGINAL (the web port)
+extern "C" bool thug2_trace_script_command();
+#endif
+
 namespace Script {
 
 namespace {
@@ -304,6 +308,14 @@ bool CScript::ExecuteCommand()
     if (Gfx::LoadingConsole::Active() &&
         (symbol->type == ESYMBOLTYPE_QSCRIPT || symbol->type == ESYMBOLTYPE_CFUNCTION))
         Gfx::LoadingConsole::NoteScriptCall(name, symbol->type == ESYMBOLTYPE_CFUNCTION, m_functionParams);
+#if defined(THUG2_WEB) // NOT ORIGINAL (the web port): THUG2_SCRIPT_TRACE (port/src/hook/paths.cpp)
+    {
+        if (thug2_trace_script_command())
+            Dbg::Printf("trace: %s %08X in %08X\n",
+                        symbol->type == ESYMBOLTYPE_QSCRIPT ? "script" : symbol->type == ESYMBOLTYPE_CFUNCTION ? "cfunc" : "member",
+                        name, m_scriptName);
+    }
+#endif
     switch (symbol->type) {
     case ESYMBOLTYPE_QSCRIPT: {
         const uint8_t* code = ScriptCache()->GetScript(symbol->name);
