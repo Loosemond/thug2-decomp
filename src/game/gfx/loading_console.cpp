@@ -353,7 +353,11 @@ void OnLogLine(const char* line)
 
 bool Enabled()
 {
+#if defined(THUG2_WEB) // NOT ORIGINAL (the web port): off unless asked for - the loading screen as the original's
+    static bool on = ConfigInt("features", "loading_console", 0) != 0;
+#else
     static bool on = ConfigInt("features", "loading_console", 1) != 0;
+#endif
     return on;
 }
 
