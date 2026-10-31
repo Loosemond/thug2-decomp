@@ -13,6 +13,10 @@
 #include "hook/game_global.h"
 #include "hook/hook.h"
 
+#if defined(THUG2_WEB)
+extern "C" bool thug2web_mark_stream_entry(uint32_t checksum, size_t size, void* data); // (port/src/library/bink.cpp)
+#endif
+
 namespace Pcm {
 
 GAME_GLOBAL(bool, g_binkSoundSet, 0x0069CB99);
@@ -104,7 +108,12 @@ int __cdecl LoadStreamFile(uint32_t key, const char* path, long offset, size_t s
     file.lastUse = StreamFileUses();
     CrtFseek(in, offset, SEEK_SET);
     file.data = CrtMalloc(size);
-    CrtFread(file.data, size, 1, in);
+#if defined(THUG2_WEB)
+    // (in the page the entry comes in the background once it's opened, by the web build's Bink: a mark of which it is
+    // goes here instead - a read from the server would hold the game up)
+    if (!thug2web_mark_stream_entry(key, size, file.data))
+#endif
+        CrtFread(file.data, size, 1, in);
     file.key = key;
     CrtFclose(in);
     return slot;
